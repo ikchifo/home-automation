@@ -72,21 +72,6 @@ plugins/
           dashboards.md      — dashboard card patterns
 ```
 
-## Other repo contents
-
-Config backups and setup guide for a Home Assistant instance
-on a Raspberry Pi 5.
-
-```
-AGENTS.md                    — full setup guide and reference
-configs/
-  ha/                        — core HA config and automations
-  dashboards/                — Lovelace YAML dashboards
-  adguard/                   — AdGuard DNS and filtering config
-scripts/
-  hooks/                     — git hooks (secrets scanner)
-```
-
 ## Contributing
 
 After cloning, activate the pre-commit hook:
