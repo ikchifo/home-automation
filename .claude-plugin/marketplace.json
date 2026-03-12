@@ -1,0 +1,24 @@
+{
+  "name": "home-automation",
+  "owner": {
+    "name": "ikchifo"
+  },
+  "metadata": {
+    "description": "Claude Code plugins for Home Assistant management"
+  },
+  "plugins": [
+    {
+      "name": "homeassistant",
+      "source": "./plugins/homeassistant",
+      "description": "Manage Home Assistant via REST API, hass-cli, and SSH. Covers entity control, service calls, automations, dashboards, config flows, and troubleshooting.",
+      "version": "1.0.0",
+      "keywords": [
+        "home-assistant",
+        "smart-home",
+        "iot",
+        "hass-cli",
+        "rest-api"
+      ]
+    }
+  ]
+}

@@ -3,7 +3,7 @@
   "description": "Manage Home Assistant via REST API, hass-cli, and SSH. Covers entity control, service calls, automations, dashboards, config flows, and troubleshooting.",
   "version": "1.0.0",
   "author": {
-    "name": "chifo"
+    "name": "ikchifo"
   },
-  "repository": "https://github.com/chifo/home-automation"
+  "repository": "https://github.com/ikchifo/home-automation"
 }
