@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+# Pre-commit hook: scan staged files for sensitive information.
+# Bypass with: git commit --no-verify
+
+readonly HOOK_NAME="pre-commit/secrets-scan"
+
+violations=0
+
+# Collect staged files (added, copied, modified, renamed), skip deleted files.
+staged_files=()
+while IFS= read -r -d '' file; do
+    staged_files+=("$file")
+done < <(git diff --cached --name-only --diff-filter=ACMR -z)
+
+if [[ ${#staged_files[@]} -eq 0 ]]; then
+    exit 0
+fi
+
+check_pattern() {
+    local label="$1"
+    local pattern="$2"
+    local file="$3"
+
+    local matches
+    # -n for line numbers, -i for case-insensitive where needed, -P for PCRE
+    if matches=$(git show ":${file}" 2>/dev/null | grep -nP "$pattern" 2>/dev/null); then
+        while IFS= read -r match; do
+            local line_num="${match%%:*}"
+            local content="${match#*:}"
+            # Truncate long lines for readability
+            if [[ ${#content} -gt 120 ]]; then
+                content="${content:0:120}..."
+            fi
+            printf "  %-40s line %-5s [%s] %s\n" "$file" "$line_num" "$label" "$content"
+            ((violations++))
+        done <<< "$matches"
+    fi
+}
+
+printf '%s\n' "[$HOOK_NAME] Scanning staged files for sensitive information..."
+
+for file in "${staged_files[@]}"; do
+    # Skip .gitignore
+    if [[ "$file" == ".gitignore" ]]; then
+        continue
+    fi
+
+    # Skip binary files: check the staged blob via git
+    if git diff --cached --numstat -z -- "$file" | grep -qP '^\-\t\-\t'; then
+        continue
+    fi
+
+    # Private IPv4: 192.168.x.x, 10.x.x.x, 172.16-31.x.x
+    # Allow 127.0.0.1 and 0.0.0.0 by using negative lookahead (handled by excluding them).
+    # Match 10.x.x.x but not 127.0.0.1 or 0.0.0.0
+    check_pattern "private-ipv4" \
+        '\b(192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2[0-9]|3[01])\.\d{1,3}\.\d{1,3})\b' \
+        "$file"
+
+    # Email addresses
+    check_pattern "email" \
+        '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}' \
+        "$file"
+
+    # JWT tokens (three base64url segments separated by dots, starting with eyJ)
+    check_pattern "jwt-token" \
+        'eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}' \
+        "$file"
+
+    # Long hex strings (32+ chars) that look like API keys/tokens
+    check_pattern "hex-secret" \
+        '(?:^|[^0-9a-fA-F])[0-9a-fA-F]{32,}(?:$|[^0-9a-fA-F])' \
+        "$file"
+
+    # SSH private key headers
+    check_pattern "ssh-private-key" \
+        'BEGIN[[:space:]].*PRIVATE[[:space:]]KEY' \
+        "$file"
+
+    # Personal name (case-insensitive)
+    check_pattern "personal-name" \
+        '(?i)\bikenna\b' \
+        "$file"
+done
+
+if [[ $violations -gt 0 ]]; then
+    printf '\n%s\n' "[$HOOK_NAME] Found $violations violation(s) in staged files."
+    printf '%s\n' "Fix the issues above or bypass this check with:"
+    printf '%s\n' "  git commit --no-verify"
+    exit 1
+fi
+
+printf '%s\n' "[$HOOK_NAME] No sensitive information detected. Proceeding."
+exit 0

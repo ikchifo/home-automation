@@ -22,6 +22,16 @@ configs/
   adguard/             — AdGuard DNS and filtering config
 skills/
   homeassistant/       — Claude Code skill for HA management
+scripts/
+  hooks/               — git hooks (secrets scanner)
+```
+
+## Setup
+
+After cloning, point git at the tracked hooks:
+
+```bash
+git config core.hooksPath scripts/hooks
 ```
 
 ## Devices
