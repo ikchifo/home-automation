@@ -1,0 +1,10 @@
+# Claude Code local config
+.claude/
+
+# HA secrets
+secrets.yaml
+*.env
+
+# Backups (may contain credentials)
+*.tar.gz
+*.zip
