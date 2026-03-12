@@ -20,6 +20,8 @@ configs/
   ha/                  — core HA config and automations
   dashboards/          — Lovelace YAML dashboards
   adguard/             — AdGuard DNS and filtering config
+skills/
+  homeassistant/       — Claude Code skill for HA management
 ```
 
 ## Devices
