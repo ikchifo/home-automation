@@ -298,11 +298,20 @@ Consider a startup automation to handle this automatically.
 
 ### HomeKit Bridge issues
 
-- TVs must use **accessory mode** (HAP protocol constraint).
+- TVs with built-in HomeKit (Sony, LG, Samsung): prefer the
+  TV's **native HomeKit** over HA's bridge. Native HomeKit
+  provides full Apple Home controls including the Control
+  Center Remote widget (d-pad, volume, play/pause). HA's
+  bridge cannot provide the Remote widget without a Home Hub.
+  Exclude the TV from the HA bridge to avoid duplicates.
+- If the TV lacks native HomeKit, use **accessory mode** in
+  HA's bridge (HAP protocol constraint for TVs).
 - After config changes, re-pair: remove bridge in Apple Home,
   reload, scan new QR code.
 - Duplicate devices: check for multiple integrations exposing
   the same device (Cast + Bravia, native AirPlay + HA bridge).
+  Delete the `homekit_controller` ignore entry if HA
+  auto-discovers the TV's native HomeKit.
 
 ```bash
 # Reload HomeKit
