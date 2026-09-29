@@ -58,7 +58,8 @@ See `references/hass-cli.md` for the full command reference.
 | Restart HA core | SSH `ha core restart` | No REST equiv |
 | Reload services | REST API | Service call |
 | View live logs | SSH | Streaming needed |
-| Edit dashboards | Local file edit | YAML files |
+| Edit YAML dashboards | Local file edit | YAML files |
+| Edit storage dashboards | WebSocket API | UI-owned configuration |
 
 ## REST API
 
@@ -373,10 +374,10 @@ registration pattern.
 
 ## Dashboards
 
-This setup uses **YAML-mode dashboards** with Mushroom Cards
-for entity controls and Bubble Card for the bottom navigation
-bar. Edit YAML locally; changes appear on browser refresh
-(Cmd+Shift+R) — no HA restart needed.
+YAML dashboards can be edited locally. Storage-mode dashboards
+are managed by Home Assistant and can be read or saved through
+the WebSocket API. Refresh the browser to see changes; no HA
+restart is needed.
 
 See `references/dashboards.md` for card patterns, view types,
 template syntax, and the bottom nav bar setup.

@@ -9,6 +9,34 @@ YAML dashboards are stored at `/config/ui-dashboard-<name>.yaml`
 on the HA instance. Edit locally and refresh the browser
 (Cmd+Shift+R) — no HA restart needed.
 
+## Storage-mode dashboards
+
+UI-managed dashboards are not stored in the YAML dashboard files.
+Connect to `${HASS_SERVER}/api/websocket` and wait for `auth_required`.
+Send `{"type":"auth","access_token":"<TOKEN>"}` and wait for
+`auth_ok`. Send messages with unique integer `id` values:
+
+```json
+{"id":1,"type":"lovelace/dashboards/list"}
+{"id":2,"type":"lovelace/config","url_path":"<dashboard-path>"}
+{"id":3,"type":"lovelace/config/save","url_path":"<dashboard-path>","config":{}}
+```
+
+For `config/save`, replace `{}` with the full `result` object from
+`lovelace/config` after changing only the intended cards. Confirm
+`success: true`, then read the config again to verify the change.
+Do not overwrite other views or cards. Refresh the display if it
+does not show the new layout.
+
+To control multiple lights with one light card, create a light
+group helper first (Settings > Devices & services > Helpers >
+Create helper > Group > Light group). The config-flow API can
+also create it: start `/api/config/config_entries/flow` with
+`{"handler":"group"}`, submit `{"next_step_id":"light"}` to
+the returned flow URL, then submit the form's `name`, `entities`,
+`hide_members`, and `all` fields. Check the new `light.*` entity
+before using it in a dashboard card.
+
 ## Mushroom Cards
 
 Preferred for entity controls. Clean, minimal, touch-friendly.
