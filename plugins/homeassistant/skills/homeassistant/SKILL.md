@@ -344,10 +344,15 @@ If first page loads hang then resolve on retry, IPv6 is likely
 the culprit. Disable it in AdGuard:
 
 ```bash
-curl -s -X POST http://127.0.0.1:45158/control/dns_config \
+curl -s -X POST http://127.0.0.1:<adguard_http_port>/control/dns_config \
   -H "Content-Type: application/json" \
   -d '{"disable_ipv6": true}'
 ```
+
+For wake-stalls on phones (apps hang after unlock until
+retried), the AdGuard-as-tailnet-nameserver architecture is the
+usual cause. See `references/adguard.md` for the full API
+reference, blocklist debugging, and the Tailscale DNS layout.
 
 ## LLM integration (Assist API)
 
