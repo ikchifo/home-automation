@@ -127,3 +127,28 @@ the router as forwarder). Caveats: firmware-dependent (relay mode
 on old firmware cuts the DNS server off the network), ISP remote
 management may revert the change, and there is no secondary DNS
 in DHCP mode. Verify with a DNS health check before and after.
+
+## ISP gateway: Wi-Fi config over JSON-RPC
+
+The same JSON-RPC API used for DNS settings can read and write
+Wi-Fi radio config on Sagemcom-style gateways — handy when the
+web UI hides channel selection:
+
+- Read radios: `getValue` on `Device/WiFi/Radios` (channel,
+  width, standards, auto-channel flags for each band)
+- Set channel: `setValue` on `Device/WiFi/Radios/Radio[N]/Channel`.
+  Instance paths need NUMERIC indices — the alias form shown in
+  `Name` fields (`Radio[RADIO5G]`) returns `XMO_UNKNOWN_PATH_ERR`;
+  check the `Device/WiFi/Radios` dump for order (one 5690:
+  2.4GHz=1, 5GHz=2, 6GHz=3)
+- Changing the channel briefly drops that band's clients. Save
+  the original channel, read back the radio status after the
+  write, and roll back if it does not return `UP`
+- DFS channels (e.g. 100) force a 30+ minute channel evacuation
+  on radar detection, dropping every client on that band —
+  prefer non-DFS channels for latency-sensitive traffic
+- Neighbor scan: setValue
+  `Device/WiFi/NeighboringWiFiDiagnostic/DiagnosticsState` to
+  `Requested`; poll the node until `COMPLETED` (~12s); results
+  land in `Result`. Some units return zero entries (quiet RF
+  environment or firmware never populates it)
